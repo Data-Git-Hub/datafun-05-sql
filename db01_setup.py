@@ -18,6 +18,11 @@ def execute_sql_file(connection, file_path) -> None:
         connection (sqlite3.Connection): SQLite connection object.
         file_path (str): Path to the SQL file to be executed.
     """
+        # Check if the SQL file exists before proceeding
+    if not file_path.is_file():
+        logger.error(f"SQL file does not exist: {file_path}")
+        raise FileNotFoundError(f"SQL file not found: {file_path}")
+    
     # We know reading from a file can raise exceptions, so we wrap it in a try block
     # For example, the file might not exist, or the file might not be readable
     try:
