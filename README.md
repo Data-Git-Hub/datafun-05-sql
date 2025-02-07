@@ -73,19 +73,16 @@ The database schema for this project is designed to demonstrate relational datab
 ---
 ### Using Jupyter Notebook, create a narrative that explores and shows the following SQL operations. 
 
-- SELECT command
-- WHERE command
-- ORDER BY command
-- INNER JOIN command
-- INSERT INTO command
-- UPDATE command
-- DELETE FROM command
-- GROUP BY command
-- LEFT JOIN command
-- RIGHT JOIN command
 - COUNT command
 - AVG command
 - SUM command
+- WHERE command
+- ORDER BY command
+- GROUP BY command
+- INNER JOIN command
+- LEFT JOIN command
+- RIGHT JOIN command
+
 
 These operations are demonstrated through a set of SQL scripts and corresponding Python scripts:
 
