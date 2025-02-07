@@ -42,15 +42,16 @@ def create_tables(db_path, sql_file_path):
         print(f"Error creating tables: {e}")
 
 def insert_data_from_csv(db_path, author_data_path, book_data_path):
-    """Read data from CSV files and insert the records into their respective tables."""
+    import pandas as pd
     try:
         authors_df = pd.read_csv(author_data_path)
         books_df = pd.read_csv(book_data_path)
         with sqlite3.connect(db_path) as conn:
+            # Use if_exists="replace" to overwrite any old data.
             authors_df.to_sql("authors", conn, if_exists="replace", index=False)
             books_df.to_sql("books", conn, if_exists="replace", index=False)
             print("Data inserted successfully.")
-    except (sqlite3.Error, pd.errors.EmptyDataError, FileNotFoundError) as e:
+    except Exception as e:
         print(f"Error inserting data: {e}")
 
 def main():
