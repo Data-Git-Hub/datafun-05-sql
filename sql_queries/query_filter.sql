@@ -1,5 +1,3 @@
--- query_filters.sql
-
 -- Select all books published after 1950.
 SELECT * 
 FROM books
