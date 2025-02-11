@@ -1,6 +1,6 @@
 book_id,title,year_published,author_id
-BOOK_005,To Kill a Mockingbird,1960,AUTHOR_003
 BOOK_003,1984,1949,AUTHOR_002
+BOOK_005,To Kill a Mockingbird,1960,AUTHOR_003
 BOOK_006,The Great Gatsby,1925,AUTHOR_004
 BOOK_007,Brave New World,1932,AUTHOR_005
 BOOK_008,The Catcher in the Rye,1951,AUTHOR_006

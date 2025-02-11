@@ -71,7 +71,7 @@ The database schema for this project is designed to demonstrate relational datab
 
 ## SQL Inquiries and Operations
 ---
-### Using Jupyter Notebook, create a narrative that explores and shows the following SQL operations. 
+### Create a narrative that explores and shows the following SQL operations. 
 
 - COUNT command
 - AVG command
@@ -94,6 +94,7 @@ These operations are demonstrated through a set of SQL scripts and corresponding
 
 - **sql_queries Folder:**  
   Contains scripts for performing aggregations and queries:
+  - **data_addition.sql** Add additional column for book_price to give more fidelity of data
   - **query_aggregation.sql:** Demonstrates aggregation functions (e.g., COUNT, AVG, SUM).
   - **query_filter.sql:** Uses WHERE clauses to filter data.
   - **query_sorting.sql:** Uses ORDER BY to sort data.
