@@ -121,7 +121,5 @@ This section illustrates how various SQL operations are applied to manipulate an
 Create a virtual environment, activate it, and install the required packages listed in `requirements.txt`.
 
 #### Windows Example:
-```powershell
-.\.venv\Scripts\activate
-pip install -r requirements.txt
+
 
