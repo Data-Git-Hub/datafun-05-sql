@@ -120,6 +120,28 @@ This section illustrates how various SQL operations are applied to manipulate an
 ### 1. Create a Virtual Environment and Install Dependencies
 Create a virtual environment, activate it, and install the required packages listed in `requirements.txt`.
 
-#### Windows Example:
+### 2. Create and activate a virtual environment:
+   ```bash
+   python -m venv venv
+   venv\Scripts\Activate  # On Windows
+   source venv/bin/activate  # On macOS/Linux
+   ```
+### 3. Install dependencies:
+   ```bash
+   pip install -r requirements.txt
+   ```
 
-
+### 4. Run Python Scripts
+- To create and populate the database:
+  ```bash
+  python db01_setup.py
+  ```
+- To update or delete records:
+  ```bash
+  python db02_features.py
+  ```
+- To run queries and analyze data:
+  ```bash
+  python db03_queries.py
+  ```
+- ** once db03_queries.py is executed you advance the outputs either by "Spacebar" or "Enter"
