@@ -4,6 +4,13 @@ import sys
 from utils_logger import logger  # Import the logger
 
 def execute_sql_file(connection, file_path: pathlib.Path) -> None:
+    """
+    Executes a SQL file using the provided SQLite connection.
+
+    Args:
+        connection (sqlite3.Connection): SQLite connection object.
+        file_path (pathlib.Path): Path to the SQL file to be executed.
+    """
     if not file_path.is_file():
         logger.error(f"SQL file does not exist: {file_path}")
         sys.exit(1)
@@ -22,6 +29,8 @@ def main() -> None:
     ROOT_DIR = pathlib.Path(__file__).parent.resolve()
     DATA_FOLDER = ROOT_DIR.joinpath("data")
     DB_PATH = DATA_FOLDER.joinpath("db.sqlite")
+    # Define folder paths for both SQL creation and feature scripts
+    SQL_CREATE_FOLDER = ROOT_DIR.joinpath("sql_create")
     SQL_FEATURES_FOLDER = ROOT_DIR.joinpath("sql_features")
     
     try:
@@ -31,6 +40,11 @@ def main() -> None:
         logger.error(f"Error connecting to database: {e}")
         return
 
+    # Execute the insert script from the sql_create folder to populate the tables
+    insert_sql_file = SQL_CREATE_FOLDER.joinpath("03_insert_tables.sql")
+    execute_sql_file(connection, insert_sql_file)
+    
+    # Now run the feature scripts: update and delete operations
     update_sql_file = SQL_FEATURES_FOLDER.joinpath("update_records.sql")
     execute_sql_file(connection, update_sql_file)
 
