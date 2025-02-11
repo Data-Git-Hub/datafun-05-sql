@@ -1,5 +1,3 @@
--- query_aggregation.sql
-
 -- Count the total number of books
 SELECT COUNT(*) AS total_books
 FROM books;
