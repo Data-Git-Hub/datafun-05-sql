@@ -19,7 +19,6 @@ SELECT AVG(book_price) AS average_book_price
 FROM books;
 
 -- Sum the total price of books per author for authors who have more than one book.
--- This query joins the authors and books tables, groups by author, and then sums the book_price.
 SELECT 
     a.author_id,
     a.first,
