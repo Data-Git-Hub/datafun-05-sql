@@ -7,7 +7,7 @@ SELECT COUNT(*) AS total_authors
 FROM authors;
 
 -- Calculate the average publication year for all books
-SELECT AVG(year_published) AS average_year_published
+SELECT AVG(publication_year) AS average_publication_year
 FROM books;
 
 -- Calculate the total sum of book prices for all books
