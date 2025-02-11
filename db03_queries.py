@@ -5,8 +5,8 @@ import pandas as pd
 import matplotlib.pyplot as plt
 from utils_logger import logger  # Import your custom logger
 
-# Set a global font size for consistency.
-plt.rcParams.update({'font.size': 11})
+# Set a global font size for other matplotlib elements.
+plt.rcParams.update({'font.size': 14})
 
 def insert_data_from_csv(db_path: pathlib.Path, authors_csv: pathlib.Path, books_csv: pathlib.Path) -> None:
     """
@@ -61,7 +61,7 @@ def execute_multiple_queries(connection, file_path: pathlib.Path) -> list:
     try:
         with open(file_path, 'r') as file:
             content = file.read()
-        # Split the content on semicolons and filter out empty statements.
+        # Split on semicolons and remove empty statements.
         statements = [stmt.strip() for stmt in content.split(';') if stmt.strip()]
         results = []
         for stmt in statements:
@@ -76,22 +76,28 @@ def execute_multiple_queries(connection, file_path: pathlib.Path) -> list:
         logger.error(f"Error reading SQL query file {file_path}: {e}")
         return []
 
-def display_dataframe_table(df: pd.DataFrame, title: str) -> None:
+def display_dataframe_text(df: pd.DataFrame, title: str) -> None:
     """
-    Displays the DataFrame in a matplotlib window as a table.
+    Displays the DataFrame as preformatted text in a matplotlib figure
+    using a monospace font with large text.
     Waits for user input before closing the window.
     """
     try:
-        fig, ax = plt.subplots(figsize=(10, max(2, len(df) * 0.5)))
-        ax.axis('tight')
+        # Convert the DataFrame to a string.
+        table_str = df.to_string(index=False)
+        # Estimate figure height based on the number of lines.
+        num_lines = table_str.count('\n') + 1
+        fig, ax = plt.subplots(figsize=(12, num_lines * 0.6 + 2), dpi=100)
         ax.axis('off')
-        table = ax.table(cellText=df.values, colLabels=df.columns, loc='center')
-        plt.title(title, fontsize=16)
+        # Display the table string using a large monospace font.
+        ax.text(0.5, 0.5, table_str, fontsize=20, ha='center', va='center', fontfamily='monospace')
+        plt.title(title, fontsize=24)
+        plt.tight_layout()
         plt.show(block=False)
         input("Press Enter to continue to the next query result...")
         plt.close(fig)
     except Exception as e:
-        logger.error(f"Error displaying DataFrame table: {e}")
+        logger.error(f"Error displaying DataFrame text: {e}")
 
 def visualize_publication_year_histogram(connection) -> None:
     """
@@ -122,7 +128,7 @@ def visualize_publication_year_histogram(connection) -> None:
 def visualize_book_price_pie(connection) -> None:
     """
     Creates a pie chart where each slice represents a book's price as a percentage of
-    the total book prices. The label for each slice is the price.
+    the total book prices. The label for each slice is the book's price.
     """
     try:
         query = "SELECT book_price FROM books WHERE book_price IS NOT NULL"
@@ -132,8 +138,8 @@ def visualize_book_price_pie(connection) -> None:
             return
         labels = df['book_price'].astype(str)
         plt.figure(figsize=(8, 6))
-        plt.pie(df['book_price'], labels=labels, autopct='%1.1f%%', startangle=140, textprops={'fontsize': 14})
-        plt.title('Book Price Distribution', fontsize=18)
+        plt.pie(df['book_price'], labels=labels, autopct='%1.1f%%', startangle=140, textprops={'fontsize': 18})
+        plt.title('Book Price Distribution', fontsize=22)
         plt.tight_layout()
         plt.show(block=False)
         input("Press Enter to close the Book Price Pie Chart and continue...")
@@ -191,9 +197,9 @@ def visualize_average_publication_year(connection) -> None:
         avg_year = df.iloc[0]['average_year_published']
         plt.figure(figsize=(4, 4))
         plt.text(0.5, 0.5, f"Avg Publication Year: {avg_year:.0f}",
-                 fontsize=18, ha='center', va='center')
+                 fontsize=22, ha='center', va='center')
         plt.axis('off')
-        plt.title('Average Publication Year', fontsize=18)
+        plt.title('Average Publication Year', fontsize=22)
         plt.show(block=False)
         input("Press Enter to close the Average Publication Year Visualization and continue...")
         plt.close()
@@ -239,7 +245,6 @@ def main() -> None:
     
     query_results = {}
     
-    # Execute each query file and display its results.
     for qf in query_files:
         file_path = SQL_QUERIES_FOLDER.joinpath(qf)
         logger.info(f"Executing query file: {file_path}")
@@ -249,15 +254,8 @@ def main() -> None:
             for stmt, df in results:
                 print(f"\nStatement:\n{stmt}\n")
                 print(df)
-                display_title = f"Results for {qf}\nQuery: {stmt[:50]}..."
-                plt.figure(figsize=(10, max(2, len(df) * 0.5)))
-                plt.axis('tight')
-                plt.axis('off')
-                table = plt.table(cellText=df.values, colLabels=df.columns, loc='center')
-                plt.title(display_title, fontsize=16)
-                plt.show(block=False)
-                input("Press Enter to continue to the next query result...")
-                plt.close()
+                # Use the new display function that renders text.
+                display_dataframe_text(df, title=f"Results for {qf}\nQuery: {stmt[:50]}...")
             query_results[qf] = results
         else:
             logger.error(f"No results returned for {qf}")
@@ -271,6 +269,25 @@ def main() -> None:
     
     connection.close()
     logger.info("Database connection closed.")
+
+def display_dataframe_text(df: pd.DataFrame, title: str) -> None:
+    """
+    Displays the DataFrame as preformatted text in a matplotlib figure using a monospace font.
+    Waits for user input before closing the window.
+    """
+    try:
+        table_str = df.to_string(index=False)
+        num_lines = table_str.count('\n') + 1
+        fig, ax = plt.subplots(figsize=(12, num_lines * 0.6 + 2), dpi=100)
+        ax.axis('off')
+        ax.text(0.5, 0.5, table_str, fontsize=20, ha='center', va='center', fontfamily='monospace')
+        plt.title(title, fontsize=24)
+        plt.tight_layout()
+        plt.show(block=False)
+        input("Press Enter to continue to the next query result...")
+        plt.close(fig)
+    except Exception as e:
+        logger.error(f"Error displaying DataFrame text: {e}")
 
 if __name__ == "__main__":
     main()
