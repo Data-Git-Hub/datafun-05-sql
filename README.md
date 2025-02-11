@@ -99,7 +99,7 @@ These operations are demonstrated through a set of SQL scripts and corresponding
   - **query_filter.sql:** Uses WHERE clauses to filter data.
   - **query_sorting.sql:** Uses ORDER BY to sort data.
   - **query_group_by.sql:** Uses GROUP BY to group data along with aggregations.
-  - **query_join.sql:** Uses INNER JOIN (and optionally LEFT JOIN or RIGHT JOIN) to combine data from multiple tables.
+  - **query_join.sql:** Uses INNER JOIN (and optionally LEFT JOIN) to combine data from multiple tables.
 
 ### Python Integration:
 - **db02_features.py:**  
