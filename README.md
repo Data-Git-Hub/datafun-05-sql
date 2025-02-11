@@ -133,15 +133,15 @@ Create a virtual environment, activate it, and install the required packages lis
 
 ### 4. Run Python Scripts
 - To create and populate the database:
-  ```bash
-  python db01_setup.py
-  ```
+   ```bash
+   python db01_setup.py
+   ```
 - To update or delete records:
-  ```bash
-  python db02_features.py
-  ```
+   ```bash
+   python db02_features.py
+   ```
 - To run queries and analyze data:
-  ```bash
-  python db03_queries.py
-  ```
+   ```bash
+   python db03_queries.py
+   ```
 - ** once db03_queries.py is executed you advance the outputs either by "Spacebar" or "Enter"
