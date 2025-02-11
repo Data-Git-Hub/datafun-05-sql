@@ -1,7 +1,7 @@
 # P5 Specifications
 ---
 
-- External dependencies: pandas (recommended). Therefore, we'll need a local virtual environment for our project. 
+- External dependencies: pandas and matplotlib. Therefore, we'll need a local virtual environment for our project. 
 - We also use sqlite3 from the Python Standard Library.
 - Practice key skills is recommended to help learn the process for best results. 
 
@@ -29,8 +29,9 @@
 
 ### sql_queries folder:
 
+- data_addition.sql - adding book_price to give more data for SQL queries.
 - query_aggregation.sql - use aggregation functions including COUNT, AVG, SUM.
-- query_filter.sql - use WHERE to filter data based on conditions.
+- query_filters.sql - use WHERE to filter data based on conditions.
 - query_sorting.sql - use ORDER BY to sort data.
 - query_group_by.sql - use GROUP BY clause (and optionally with aggregation)
 - query_join.sql - use INNER JOIN operation and optionally include LEFT JOIN, RIGHT JOIN, etc.
