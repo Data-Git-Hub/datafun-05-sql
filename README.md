@@ -113,3 +113,15 @@ These operations are demonstrated through a set of SQL scripts and corresponding
   4. Optionally, includes additional analysis or visualizations using libraries such as pandas or matplotlib.
 
 This section illustrates how various SQL operations are applied to manipulate and analyze the database, providing a practical overview of working with relational databases in Python.
+
+## Run Scripts
+
+---
+### 1. Create a Virtual Environment and Install Dependencies
+Create a virtual environment, activate it, and install the required packages listed in `requirements.txt`.
+
+#### Windows Example:
+```powershell
+.\.venv\Scripts\activate
+pip install -r requirements.txt
+
