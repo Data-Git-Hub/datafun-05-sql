@@ -1,14 +1,28 @@
-
--- Group books by author using only the first name and surname.
--- For each author, count the number of books and compute the average publication year as a whole number.
+-- Group books by author.
+-- For each author, count the number of books, and compute the average and total book price.
 SELECT 
+    a.author_id, 
     a.first, 
     a.surname,
     COUNT(b.book_id) AS total_books,
-    ROUND(AVG(b.publication_year)) AS avg_publication_year
+    AVG(b.book_price) AS avg_book_price,
+    SUM(b.book_price) AS total_book_price
 FROM authors a
 LEFT JOIN books b ON a.author_id = b.author_id
-GROUP BY a.first, a.surname;
+GROUP BY a.author_id, a.first, a.surname;
+
+-- Group books by author.
+-- For each author, count the number of books, and compute the average and total book price.
+SELECT 
+    a.author_id, 
+    a.first, 
+    a.surname,
+    COUNT(b.book_id) AS total_books,
+    AVG(b.book_price) AS avg_book_price,
+    SUM(b.book_price) AS total_book_price
+FROM authors a
+LEFT JOIN books b ON a.author_id = b.author_id
+GROUP BY a.author_id, a.first, a.surname;
 
 -- Group books by publication year.
 -- This query counts the number of books published in each year and aggregates their pricing information.
