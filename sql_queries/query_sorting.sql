@@ -1,24 +1,26 @@
--- Sort all books by the publication year in ascending order.
+-- query_sorting.sql
+
+-- 1. Sort all books by the publication year in ascending order.
 SELECT * 
 FROM books
 ORDER BY publication_year ASC;
 
--- Sort all books by the book_price in descending order.
+-- 2. Sort all books by the book_price in descending order.
 SELECT * 
 FROM books
 ORDER BY book_price DESC;
 
--- Sort authors alphabetically by surname.
+-- 3. Sort authors alphabetically by surname.
 SELECT * 
 FROM authors
 ORDER BY surname ASC;
 
--- Sort books alphabetically by title.
+-- 4. Sort books alphabetically by title.
 SELECT * 
 FROM books
 ORDER BY title ASC;
 
--- Sort books first by publication year (ascending) and then by title (ascending).
+-- 5. Sort books first by publication year (ascending) and then by title (ascending).
 SELECT * 
 FROM books
 ORDER BY publication_year ASC, title ASC;

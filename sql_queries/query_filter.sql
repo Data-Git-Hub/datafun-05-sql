@@ -1,7 +1,7 @@
 -- Select all books published after 1950.
 SELECT * 
 FROM books
-WHERE year_published > 1950;
+WHERE publication_year > 1950;
 
 -- Select all authors whose surname is exactly 'Orwell'.
 SELECT * 
@@ -17,7 +17,7 @@ WHERE book_price > 15.00;
 SELECT 
     b.book_id, 
     b.title, 
-    b.year_published, 
+    b.publication_year, 
     b.book_price, 
     a.first, 
     a.surname
@@ -28,7 +28,7 @@ WHERE a.surname = 'Rowling';
 -- Select books published between 1930 and 2000 that have a price below 20.00.
 SELECT *
 FROM books
-WHERE year_published BETWEEN 1930 AND 2000
+WHERE publication_year BETWEEN 1930 AND 2000
   AND book_price < 20.00;
 
 -- Select authors whose surname starts with the letter 'R'.
