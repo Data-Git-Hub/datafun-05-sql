@@ -6,7 +6,7 @@ import matplotlib.pyplot as plt
 from utils_logger import logger  # Import your custom logger
 
 # Set a global font size for other matplotlib elements.
-plt.rcParams.update({'font.size': 14})
+plt.rcParams.update({'font.size': 11})
 
 def insert_data_from_csv(db_path: pathlib.Path, authors_csv: pathlib.Path, books_csv: pathlib.Path) -> None:
     """
@@ -76,25 +76,41 @@ def execute_multiple_queries(connection, file_path: pathlib.Path) -> list:
         logger.error(f"Error reading SQL query file {file_path}: {e}")
         return []
 
-def display_dataframe_text(df: pd.DataFrame, title: str) -> None:
+def maximize_figure():
     """
-    Displays the DataFrame as preformatted text in a matplotlib figure
-    using a monospace font with large text.
-    Waits for user input before closing the window.
+    Attempts to maximize the current matplotlib figure window.
+    This may depend on the backend and operating system.
     """
     try:
-        # Convert the DataFrame to a string.
+        mng = plt.get_current_fig_manager()
+        # For TkAgg backend on Windows.
+        try:
+            mng.window.state('zoomed')
+        except AttributeError:
+            try:
+                mng.window.showMaximized()
+            except Exception as e:
+                logger.warning("Could not maximize window: " + str(e))
+    except Exception as e:
+        logger.warning("Error maximizing figure: " + str(e))
+
+def display_dataframe_text(df: pd.DataFrame, title: str) -> None:
+    """
+    Displays the DataFrame as preformatted text in a matplotlib figure using a monospace font.
+    Maximizes the figure window and waits for a key press (Spacebar/Enter) in the figure window.
+    """
+    try:
         table_str = df.to_string(index=False)
-        # Estimate figure height based on the number of lines.
         num_lines = table_str.count('\n') + 1
         fig, ax = plt.subplots(figsize=(12, num_lines * 0.6 + 2), dpi=100)
+        maximize_figure()
         ax.axis('off')
-        # Display the table string using a large monospace font.
-        ax.text(0.5, 0.5, table_str, fontsize=20, ha='center', va='center', fontfamily='monospace')
-        plt.title(title, fontsize=24)
+        ax.text(0.5, 0.5, table_str, fontsize=17, ha='center', va='center', fontfamily='monospace')
+        plt.title(title, fontsize=21)
         plt.tight_layout()
         plt.show(block=False)
-        input("Press Enter to continue to the next query result...")
+        print("Press Spacebar or Enter in the figure window to continue...")
+        plt.waitforbuttonpress()
         plt.close(fig)
     except Exception as e:
         logger.error(f"Error displaying DataFrame text: {e}")
@@ -110,17 +126,19 @@ def visualize_publication_year_histogram(connection) -> None:
         if df.empty:
             logger.error("No year_published data available for histogram.")
             return
-        bins = list(range(1950, 2030, 10))  # 1950, 1960, ..., 2020
-        plt.figure(figsize=(8, 6))
-        plt.hist(df['year_published'], bins=bins, edgecolor='black', color='skyblue')
-        plt.xlabel('Publication Year', fontsize=16)
-        plt.ylabel('Number of Books', fontsize=16)
-        plt.title('Distribution of Books by Publication Year (1950-2020)', fontsize=18)
-        plt.xticks(bins, fontsize=14)
-        plt.yticks(fontsize=14)
+        bins = list(range(1950, 2030, 10))
+        fig, ax = plt.subplots(figsize=(8, 6), dpi=100)
+        maximize_figure()
+        ax.hist(df['year_published'], bins=bins, edgecolor='black', color='skyblue')
+        ax.set_xlabel('Publication Year', fontsize=13)
+        ax.set_ylabel('Number of Books', fontsize=13)
+        ax.set_title('Distribution of Books by Publication Year (1950-2020)', fontsize=15)
+        ax.set_xticks(bins)
+        ax.tick_params(axis='both', labelsize=11)
         plt.tight_layout()
         plt.show(block=False)
-        input("Press Enter to close the Publication Year Histogram and continue...")
+        print("Press Spacebar or Enter in the figure window to continue...")
+        plt.waitforbuttonpress()
         plt.close()
     except Exception as e:
         logger.error(f"Error during publication year histogram visualization: {e}")
@@ -137,12 +155,14 @@ def visualize_book_price_pie(connection) -> None:
             logger.error("No book_price data available for pie chart.")
             return
         labels = df['book_price'].astype(str)
-        plt.figure(figsize=(8, 6))
-        plt.pie(df['book_price'], labels=labels, autopct='%1.1f%%', startangle=140, textprops={'fontsize': 18})
-        plt.title('Book Price Distribution', fontsize=22)
+        fig, ax = plt.subplots(figsize=(8, 6), dpi=100)
+        maximize_figure()
+        ax.pie(df['book_price'], labels=labels, autopct='%1.1f%%', startangle=140, textprops={'fontsize': 15})
+        ax.set_title('Book Price Distribution', fontsize=19)
         plt.tight_layout()
         plt.show(block=False)
-        input("Press Enter to close the Book Price Pie Chart and continue...")
+        print("Press Spacebar or Enter in the figure window to continue...")
+        plt.waitforbuttonpress()
         plt.close()
     except Exception as e:
         logger.error(f"Error during book price pie chart visualization: {e}")
@@ -150,7 +170,7 @@ def visualize_book_price_pie(connection) -> None:
 def visualize_total_books_per_author(connection) -> None:
     """
     Creates a bar chart showing the total number of books per author.
-    Uses a LEFT JOIN on authors and books to include all authors.
+    Uses a LEFT JOIN to include all authors.
     Displays the author's first and surname (concatenated) as the x-axis labels.
     """
     try:
@@ -169,16 +189,18 @@ def visualize_total_books_per_author(connection) -> None:
             logger.error("No data available for Total Books per Author visualization.")
             return
         df['full_name'] = df['first'] + ' ' + df['surname']
-        plt.figure(figsize=(10, 6))
-        plt.bar(df['full_name'], df['total_books'], color='skyblue')
-        plt.xlabel('Author (First and Surname)', fontsize=16)
-        plt.ylabel('Total Books', fontsize=16)
-        plt.title('Total Books per Author', fontsize=18)
-        plt.xticks(rotation=45, ha='right', fontsize=14)
-        plt.yticks(fontsize=14)
+        fig, ax = plt.subplots(figsize=(10, 6), dpi=100)
+        maximize_figure()
+        ax.bar(df['full_name'], df['total_books'], color='skyblue')
+        ax.set_xlabel('Author (First and Surname)', fontsize=13)
+        ax.set_ylabel('Total Books', fontsize=13)
+        ax.set_title('Total Books per Author', fontsize=15)
+        plt.xticks(rotation=45, ha='right', fontsize=11)
+        plt.yticks(fontsize=11)
         plt.tight_layout()
         plt.show(block=False)
-        input("Press Enter to close the Total Books per Author Chart and continue...")
+        print("Press Spacebar or Enter in the figure window to continue...")
+        plt.waitforbuttonpress()
         plt.close()
     except Exception as e:
         logger.error(f"Error during visualization (Total Books per Author): {e}")
@@ -195,13 +217,15 @@ def visualize_average_publication_year(connection) -> None:
             logger.error("No data available for Average Publication Year visualization.")
             return
         avg_year = df.iloc[0]['average_year_published']
-        plt.figure(figsize=(4, 4))
-        plt.text(0.5, 0.5, f"Avg Publication Year: {avg_year:.0f}",
-                 fontsize=22, ha='center', va='center')
-        plt.axis('off')
-        plt.title('Average Publication Year', fontsize=22)
+        fig, ax = plt.subplots(figsize=(4, 4), dpi=100)
+        maximize_figure()
+        ax.text(0.5, 0.5, f"Avg Publication Year: {avg_year:.0f}",
+                fontsize=19, ha='center', va='center')
+        ax.axis('off')
+        plt.title('Average Publication Year', fontsize=19)
         plt.show(block=False)
-        input("Press Enter to close the Average Publication Year Visualization and continue...")
+        print("Press Spacebar or Enter in the figure window to continue...")
+        plt.waitforbuttonpress()
         plt.close()
     except Exception as e:
         logger.error(f"Error during Average Publication Year visualization: {e}")
@@ -254,7 +278,6 @@ def main() -> None:
             for stmt, df in results:
                 print(f"\nStatement:\n{stmt}\n")
                 print(df)
-                # Use the new display function that renders text.
                 display_dataframe_text(df, title=f"Results for {qf}\nQuery: {stmt[:50]}...")
             query_results[qf] = results
         else:
@@ -269,25 +292,6 @@ def main() -> None:
     
     connection.close()
     logger.info("Database connection closed.")
-
-def display_dataframe_text(df: pd.DataFrame, title: str) -> None:
-    """
-    Displays the DataFrame as preformatted text in a matplotlib figure using a monospace font.
-    Waits for user input before closing the window.
-    """
-    try:
-        table_str = df.to_string(index=False)
-        num_lines = table_str.count('\n') + 1
-        fig, ax = plt.subplots(figsize=(12, num_lines * 0.6 + 2), dpi=100)
-        ax.axis('off')
-        ax.text(0.5, 0.5, table_str, fontsize=20, ha='center', va='center', fontfamily='monospace')
-        plt.title(title, fontsize=24)
-        plt.tight_layout()
-        plt.show(block=False)
-        input("Press Enter to continue to the next query result...")
-        plt.close(fig)
-    except Exception as e:
-        logger.error(f"Error displaying DataFrame text: {e}")
 
 if __name__ == "__main__":
     main()
