@@ -144,4 +144,4 @@ Create a virtual environment, activate it, and install the required packages lis
    ```bash
    python db03_queries.py
    ```
-**once db03_queries.py is executed you advance the outputs either by "Spacebar" or "Enter"**
+# **Once db03_queries.py is executed you advance the outputs either by "Spacebar" or "Enter"**
