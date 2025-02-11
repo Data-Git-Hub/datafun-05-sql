@@ -1,8 +1,8 @@
--- Insert records into the authors table first
-INSERT INTO authors (author_id, name, birth_year, nationality) VALUES
-    ('AUTHOR_001', 'J.K. Rowling', 1965, 'British'),
-    ('AUTHOR_002', 'George Orwell', 1903, 'British'),
-    ('AUTHOR_003', 'Harper Lee', 1926, 'American');
+INSERT INTO authors (author_id, first, surname) VALUES
+    ('AUTHOR_001', 'J.K.', 'Rowling'),
+    ('AUTHOR_002', 'George', 'Orwell'),
+    ('AUTHOR_003', 'Harper', 'Lee');
+
 
 -- Insert records into the books table
 -- And include foreign key references to the authors table

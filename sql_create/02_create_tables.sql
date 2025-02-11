@@ -1,7 +1,8 @@
 -- Create the authors table
 CREATE TABLE authors (
     author_id TEXT PRIMARY KEY, -- Prefixed sequential ID as the primary key (e.g., AUTHOR_001)
-    name TEXT NOT NULL,         -- Author's name (mandatory field)
+    first TEXT NOT NULL,        -- Author's first name (mandatory field)
+    surname TEXT NOT NULL,      -- Author's last name (mandatory field)
     birth_year INTEGER,         -- Year of birth (optional)
     nationality TEXT            -- Nationality of the author (optional)
 );

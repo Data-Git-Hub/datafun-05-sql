@@ -42,11 +42,11 @@ def main() -> None:
         logger.error(f"Error connecting to database: {e}")
         return
 
-    # Drop and re-create the tables with the correct schema
+    # Drop and re-create the tables with the correct schema (matching CSV headers)
     execute_sql_file(connection, SQL_CREATE_FOLDER.joinpath('01_drop_tables.sql'))
     execute_sql_file(connection, SQL_CREATE_FOLDER.joinpath('02_create_tables.sql'))
     
-    # Insert records into the tables using the SQL script
+    # Insert records into the tables using the SQL script (should match the CSV headers)
     execute_sql_file(connection, SQL_CREATE_FOLDER.joinpath('03_insert_tables.sql'))
     
     # Now run the feature scripts (update and delete operations)
