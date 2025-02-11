@@ -124,10 +124,4 @@ Create a virtual environment, activate it, and install the required packages lis
 ```powershell
 .\.venv\Scripts\activate
 pip install -r requirements.txt
-```
 
-#### Mac/Linux Example:
-```Bash
-source .venv/bin/activate
-pip install -r requirements.txt
-```
