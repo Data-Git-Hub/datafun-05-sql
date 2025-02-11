@@ -40,3 +40,13 @@ SELECT
     COUNT(*) AS num_authors
 FROM authors
 GROUP BY surname_initial;
+
+-- additional functionality needed
+SELECT 
+    a.first, 
+    a.surname,
+    COUNT(b.book_id) AS total_books
+FROM authors a
+LEFT JOIN books b ON a.author_id = b.author_id
+GROUP BY a.first, a.surname
+ORDER BY a.surname;

@@ -5,7 +5,7 @@
 SELECT 
     b.book_id, 
     b.title, 
-    b.publication_year, 
+    b.year_published, 
     b.book_price,
     a.first || ' ' || a.surname AS author_full_name
 FROM books b
@@ -20,7 +20,7 @@ SELECT
     a.surname,
     b.book_id,
     b.title,
-    b.publication_year,
+    b.year_published,
     b.book_price
 FROM authors a
 LEFT JOIN books b ON a.author_id = b.author_id
@@ -28,11 +28,11 @@ ORDER BY a.surname;
 
 -- Note on RIGHT JOIN:
 -- SQLite does not support RIGHT JOIN directly.
-
+-- To simulate a RIGHT JOIN, you can switch the table order in a LEFT JOIN.
 SELECT 
     b.book_id, 
     b.title, 
-    b.publication_year, 
+    b.year_published, 
     b.book_price,
     a.first || ' ' || a.surname AS author_full_name
 FROM books b

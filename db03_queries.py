@@ -5,6 +5,25 @@ import pandas as pd
 import matplotlib.pyplot as plt
 from utils_logger import logger  # Import your custom logger
 
+# Set a global font size for consistency.
+plt.rcParams.update({'font.size': 11})
+
+def insert_data_from_csv(db_path: pathlib.Path, authors_csv: pathlib.Path, books_csv: pathlib.Path) -> None:
+    """
+    Reads the CSV files and imports the data into the database.
+    This will replace the 'authors' and 'books' tables with data from the CSV files.
+    """
+    try:
+        authors_df = pd.read_csv(authors_csv)
+        books_df = pd.read_csv(books_csv)
+        with sqlite3.connect(db_path) as conn:
+            authors_df.to_sql("authors", conn, if_exists="replace", index=False)
+            books_df.to_sql("books", conn, if_exists="replace", index=False)
+        logger.info("CSV data inserted successfully.")
+    except Exception as e:
+        logger.error(f"Error inserting CSV data: {e}")
+        raise
+
 def execute_script_file(connection, file_path: pathlib.Path) -> None:
     """
     Executes a SQL script file (which may contain multiple statements)
@@ -21,7 +40,6 @@ def execute_script_file(connection, file_path: pathlib.Path) -> None:
             connection.executescript(sql_script)
         logger.info(f"Executed SQL script file: {file_path}")
     except sqlite3.OperationalError as e:
-        # Check for duplicate column error and ignore it.
         if "duplicate column name: book_price" in str(e):
             logger.warning(f"Column 'book_price' already exists in {file_path}. Skipping ALTER TABLE command.")
         else:
@@ -58,40 +76,131 @@ def execute_multiple_queries(connection, file_path: pathlib.Path) -> list:
         logger.error(f"Error reading SQL query file {file_path}: {e}")
         return []
 
-def visualize_group_by_authors(df: pd.DataFrame) -> None:
+def display_dataframe_table(df: pd.DataFrame, title: str) -> None:
     """
-    Creates a bar chart showing total books per author based on the group-by query results.
-    Assumes the DataFrame has columns: author_id and total_books.
+    Displays the DataFrame in a matplotlib window as a table.
+    Waits for user input before closing the window.
     """
     try:
-        plt.figure(figsize=(8, 6))
-        plt.bar(df['author_id'], df['total_books'], color='skyblue')
-        plt.xlabel('Author ID')
-        plt.ylabel('Total Books')
-        plt.title('Total Books per Author')
-        plt.tight_layout()
-        plt.show()
+        fig, ax = plt.subplots(figsize=(10, max(2, len(df) * 0.5)))
+        ax.axis('tight')
+        ax.axis('off')
+        table = ax.table(cellText=df.values, colLabels=df.columns, loc='center')
+        plt.title(title, fontsize=16)
+        plt.show(block=False)
+        input("Press Enter to continue to the next query result...")
+        plt.close(fig)
     except Exception as e:
-        logger.error(f"Error during visualization (group by authors): {e}")
+        logger.error(f"Error displaying DataFrame table: {e}")
 
-def visualize_aggregation_publication_year(df: pd.DataFrame) -> None:
+def visualize_publication_year_histogram(connection) -> None:
     """
-    Optionally, creates a line chart (or other suitable chart) showing the average publication year.
-    Assumes the DataFrame has one row with the average_publication_year value.
+    Creates a histogram of the number of books by publication year,
+    using bins from 1950 to 2020 in 10-year intervals.
     """
     try:
-        avg_year = df.iloc[0]['average_publication_year']
-        plt.figure(figsize=(4, 4))
-        plt.text(0.5, 0.5, f"Avg Publication Year: {avg_year:.1f}",
-                 fontsize=14, ha='center', va='center')
-        plt.axis('off')
-        plt.title('Average Publication Year')
-        plt.show()
+        query = "SELECT year_published FROM books WHERE year_published BETWEEN 1950 AND 2020"
+        df = pd.read_sql_query(query, connection)
+        if df.empty:
+            logger.error("No year_published data available for histogram.")
+            return
+        bins = list(range(1950, 2030, 10))  # 1950, 1960, ..., 2020
+        plt.figure(figsize=(8, 6))
+        plt.hist(df['year_published'], bins=bins, edgecolor='black', color='skyblue')
+        plt.xlabel('Publication Year', fontsize=16)
+        plt.ylabel('Number of Books', fontsize=16)
+        plt.title('Distribution of Books by Publication Year (1950-2020)', fontsize=18)
+        plt.xticks(bins, fontsize=14)
+        plt.yticks(fontsize=14)
+        plt.tight_layout()
+        plt.show(block=False)
+        input("Press Enter to close the Publication Year Histogram and continue...")
+        plt.close()
     except Exception as e:
-        logger.error(f"Error during visualization (aggregation publication year): {e}")
+        logger.error(f"Error during publication year histogram visualization: {e}")
+
+def visualize_book_price_pie(connection) -> None:
+    """
+    Creates a pie chart where each slice represents a book's price as a percentage of
+    the total book prices. The label for each slice is the price.
+    """
+    try:
+        query = "SELECT book_price FROM books WHERE book_price IS NOT NULL"
+        df = pd.read_sql_query(query, connection)
+        if df.empty:
+            logger.error("No book_price data available for pie chart.")
+            return
+        labels = df['book_price'].astype(str)
+        plt.figure(figsize=(8, 6))
+        plt.pie(df['book_price'], labels=labels, autopct='%1.1f%%', startangle=140, textprops={'fontsize': 14})
+        plt.title('Book Price Distribution', fontsize=18)
+        plt.tight_layout()
+        plt.show(block=False)
+        input("Press Enter to close the Book Price Pie Chart and continue...")
+        plt.close()
+    except Exception as e:
+        logger.error(f"Error during book price pie chart visualization: {e}")
+
+def visualize_total_books_per_author(connection) -> None:
+    """
+    Creates a bar chart showing the total number of books per author.
+    Uses a LEFT JOIN on authors and books to include all authors.
+    Displays the author's first and surname (concatenated) as the x-axis labels.
+    """
+    try:
+        query = """
+        SELECT 
+            a.first, 
+            a.surname,
+            COUNT(b.book_id) AS total_books
+        FROM authors a
+        LEFT JOIN books b ON a.author_id = b.author_id
+        GROUP BY a.first, a.surname
+        ORDER BY a.surname;
+        """
+        df = pd.read_sql_query(query, connection)
+        if df.empty:
+            logger.error("No data available for Total Books per Author visualization.")
+            return
+        df['full_name'] = df['first'] + ' ' + df['surname']
+        plt.figure(figsize=(10, 6))
+        plt.bar(df['full_name'], df['total_books'], color='skyblue')
+        plt.xlabel('Author (First and Surname)', fontsize=16)
+        plt.ylabel('Total Books', fontsize=16)
+        plt.title('Total Books per Author', fontsize=18)
+        plt.xticks(rotation=45, ha='right', fontsize=14)
+        plt.yticks(fontsize=14)
+        plt.tight_layout()
+        plt.show(block=False)
+        input("Press Enter to close the Total Books per Author Chart and continue...")
+        plt.close()
+    except Exception as e:
+        logger.error(f"Error during visualization (Total Books per Author): {e}")
+
+def visualize_average_publication_year(connection) -> None:
+    """
+    Creates a simple visualization for the average publication year.
+    It queries the average year from the books table and displays it as text.
+    """
+    try:
+        query = "SELECT AVG(year_published) AS average_year_published FROM books"
+        df = pd.read_sql_query(query, connection)
+        if df.empty or df['average_year_published'].isnull().all():
+            logger.error("No data available for Average Publication Year visualization.")
+            return
+        avg_year = df.iloc[0]['average_year_published']
+        plt.figure(figsize=(4, 4))
+        plt.text(0.5, 0.5, f"Avg Publication Year: {avg_year:.0f}",
+                 fontsize=18, ha='center', va='center')
+        plt.axis('off')
+        plt.title('Average Publication Year', fontsize=18)
+        plt.show(block=False)
+        input("Press Enter to close the Average Publication Year Visualization and continue...")
+        plt.close()
+    except Exception as e:
+        logger.error(f"Error during Average Publication Year visualization: {e}")
 
 def main() -> None:
-    # Define project directories and paths.
     ROOT_DIR = pathlib.Path(__file__).parent.resolve()
     DATA_FOLDER = ROOT_DIR.joinpath("data")
     DB_PATH = DATA_FOLDER.joinpath("db.sqlite")
@@ -104,7 +213,15 @@ def main() -> None:
         logger.error(f"Error connecting to database: {e}")
         sys.exit(1)
     
-    # Step 1: Execute data_addition.sql to update schema (add book_price) and insert pricing data.
+    # Load CSV data into the database.
+    authors_csv = DATA_FOLDER.joinpath("authors.csv")
+    books_csv = DATA_FOLDER.joinpath("books.csv")
+    try:
+        insert_data_from_csv(DB_PATH, authors_csv, books_csv)
+    except Exception as e:
+        logger.error(f"Failed to insert CSV data: {e}")
+    
+    # Execute data_addition.sql to update schema and insert pricing data.
     data_addition_file = SQL_QUERIES_FOLDER.joinpath("data_addition.sql")
     try:
         execute_script_file(connection, data_addition_file)
@@ -114,13 +231,12 @@ def main() -> None:
     # List of query files to execute.
     query_files = [
         "query_aggregation.sql",
-        "query_filters.sql",  # Ensure this file exists; otherwise, remove from the list.
+        "query_filters.sql",
         "query_sorting.sql",
         "query_group_by.sql",
         "query_join.sql"
     ]
     
-    # Dictionary to store results for possible visualization
     query_results = {}
     
     # Execute each query file and display its results.
@@ -133,27 +249,26 @@ def main() -> None:
             for stmt, df in results:
                 print(f"\nStatement:\n{stmt}\n")
                 print(df)
-            # Store results for visualization (e.g., for group by queries)
+                display_title = f"Results for {qf}\nQuery: {stmt[:50]}..."
+                plt.figure(figsize=(10, max(2, len(df) * 0.5)))
+                plt.axis('tight')
+                plt.axis('off')
+                table = plt.table(cellText=df.values, colLabels=df.columns, loc='center')
+                plt.title(display_title, fontsize=16)
+                plt.show(block=False)
+                input("Press Enter to continue to the next query result...")
+                plt.close()
             query_results[qf] = results
         else:
             logger.error(f"No results returned for {qf}")
+            input("Press Enter to continue...")
     
-    # Optional Visualization: If query_group_by.sql was executed,
-    # visualize the total books per author using the first statement's results.
-    if "query_group_by.sql" in query_results:
-        # Assuming the first statement in query_group_by.sql is the group by author query.
-        stmt, df_group = query_results["query_group_by.sql"][0]
-        if 'author_id' in df_group.columns and 'total_books' in df_group.columns:
-            visualize_group_by_authors(df_group)
+    # Additional Visualizations:
+    visualize_publication_year_histogram(connection)
+    visualize_book_price_pie(connection)
+    visualize_total_books_per_author(connection)
+    visualize_average_publication_year(connection)
     
-    # Optional Visualization: Visualize the average publication year from query_aggregation.sql.
-    if "query_aggregation.sql" in query_results:
-        # Find the statement that returns average_publication_year.
-        for stmt, df_agg in query_results["query_aggregation.sql"]:
-            if 'average_publication_year' in df_agg.columns:
-                visualize_aggregation_publication_year(df_agg)
-                break
-
     connection.close()
     logger.info("Database connection closed.")
 
