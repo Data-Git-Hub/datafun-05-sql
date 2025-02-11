@@ -41,7 +41,7 @@ The database schema for this project is designed to demonstrate relational datab
   - **Columns:**  
     - `author_id` (Primary Key)
     - `first` (Author's first name)
-    - `last` (Author's last name)
+    - `surname` (Author's last name)
   - **Data Source:**  
     Data is imported from the `authors.csv` file.
 

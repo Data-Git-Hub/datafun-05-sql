@@ -1,7 +1,7 @@
 -- update_records.sql
 -- Update Harper Lee's last name by appending " (Updated)"
 UPDATE authors
-SET last = last || ' (Updated)'
+SET surname = surname || ' (Updated)'
 WHERE author_id = 'AUTHOR_003';
 
 -- Update the title of "1984" to indicate a revised edition
